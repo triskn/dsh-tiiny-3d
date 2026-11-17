@@ -6,7 +6,7 @@ This report separates automated checks of the publication copy from observations
 
 ### Automated checks
 
-Final publication copy: **68 tests passed, 0 failed, 0 cancelled, 0 skipped**, on macOS with Node.js 22.22.3. JavaScript syntax checks and the npm package dry run passed. The suite was rerun after both publication fixes.
+Final publication copy: **69 tests passed, 0 failed, 0 cancelled, 0 skipped**, on macOS with Node.js 22.22.3. JavaScript syntax checks and the npm package dry run passed. The suite was rerun after all publication fixes.
 
 The test suite uses temporary data directories, synthetic GLB fixtures, React stubs, pixel buffers, and a fake device bound to loopback. No real API key, device model, or private input image is required.
 
@@ -28,6 +28,7 @@ Publication checks also include JavaScript syntax validation and `npm pack --dry
 - Added MIT license text, repository metadata, ignore rules and a CI workflow.
 - Released the active-run lock after a local input preparation failure, preserving the error so a later request can run without reloading the host.
 - Changed run-state persistence to avoid readers seeing truncated JSON while cancellation progress is saved.
+- Kept the public run active with a Finalizing phase until output copying, state/history persistence, and lock release complete. A deterministic regression holds the final-file copy and checks that the first terminal response includes the saved output and allows immediate file management.
 - Replaced local development notes and internal documentation references with public-facing setup and validation documentation.
 
 The CI workflow defines Node.js 20/22 checks on macOS, Windows and Linux. Defining that matrix does not establish that every platform has passed; consult the repository's Actions results for current outcomes.

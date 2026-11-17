@@ -1241,3 +1241,50 @@ test('overlapping run snapshots stay readable and cannot overwrite a newer cance
     await resetCancellationFixture()
   }
 })
+
+test('public completion waits for the final file and history before releasing run ownership', async () => {
+  const originalCopyFile = fs.copyFile
+  let releaseCopy
+  const copyGate = new Promise((resolve) => { releaseCopy = resolve })
+  let reportCopy
+  const copyEntered = new Promise((resolve) => { reportCopy = resolve })
+  let heldCopy = false
+  fs.copyFile = async (source, target, ...args) => {
+    if (!heldCopy && String(target).endsWith('-painted.glb')) {
+      heldCopy = true
+      reportCopy()
+      await copyGate
+    }
+    return originalCopyFile.call(fs, source, target, ...args)
+  }
+  try {
+    const accepted = await startGeneration()
+    assert.equal(accepted.statusCode, 200)
+    const id = jsonOf(accepted).run.id
+    await Promise.race([
+      copyEntered,
+      delay(2000).then(() => { throw new Error('Final output copy was not reached') }),
+    ])
+    const pending = jsonOf(await invoke({ url: '/tiiny-3d/run' })).run
+    assert.equal(pending.id, id)
+    assert.equal(pending.status, 'running', 'clients must keep polling while output is being finalized')
+    assert.equal(pending.phase, 'finalizing')
+    assert.equal(pending.finalizing, true)
+    assert.equal(pending.final, null)
+    assert.equal((await startGeneration()).statusCode, 409, 'new work remains blocked during finalization')
+    const rename = () => invoke({ method: 'POST', url: '/tiiny-3d/rename-run', body: JSON.stringify({ id, name: 'finalized-model.glb' }) })
+    assert.equal((await rename()).statusCode, 409)
+    releaseCopy()
+    const done = await waitForRun((run) => run.id === id && run.status !== 'running')
+    assert.equal(done.status, 'completed')
+    assert.equal(done.finalizing, false)
+    assert.ok(done.final?.path, 'terminal response includes the exported output')
+    assert.equal((await fs.stat(done.final.path)).size, done.final.bytes)
+    const history = jsonOf(await invoke({ url: '/tiiny-3d/history' })).runs
+    assert.equal(history.find((entry) => entry.id === id)?.final?.path, done.final.path, 'history is published before completion')
+    assert.equal((await rename()).statusCode, 200, 'the first request after completion can mutate the settled run')
+  } finally {
+    releaseCopy()
+    fs.copyFile = originalCopyFile
+  }
+})

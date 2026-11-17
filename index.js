@@ -1452,8 +1452,14 @@ async function listRunArtifacts(run) {
 }
 
 function runView(run) {
+  // Pipeline completion precedes final-file copying and persistence. Keep the
+  // public run busy until those writes finish and its ownership lock is freed.
+  const finalizing = activeRunId === run.id && run.status !== 'running'
   return {
     ...serializeRun(run, true),
+    status: finalizing ? 'running' : run.status,
+    phase: finalizing ? 'finalizing' : run.phase,
+    finalizing,
     artifacts: undefined,
     outputDir: run.outputDir || '',
     stages: Object.fromEntries(
