@@ -1,0 +1,59 @@
+{
+  "name": "dsh-tiiny-3d",
+  "version": "0.1.0",
+  "description": "Tiiny 3D workbench for DeepSeek Harness: drive the Image-to-3D pipeline on your Tiiny device with Tencent/Hunyuan3D-2.1, stage by stage, and preview the resulting GLB.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Tiiny",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "dsh",
+    "tiiny",
+    "hunyuan3d",
+    "image-to-3d",
+    "glb"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "glb.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "VALIDATION.md"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "homepage": "https://github.com/triskn/dsh-tiiny-3d#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/triskn/dsh-tiiny-3d.git"
+  },
+  "bugs": {
+    "url": "https://github.com/triskn/dsh-tiiny-3d/issues"
+  }
+}

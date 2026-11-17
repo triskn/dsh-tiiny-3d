@@ -1,0 +1,23 @@
+# Credentials, user inputs, run history, and generated artifacts
+.env
+.env.*
+!.env.example
+settings.json
+history.json
+runs/
+*.glb
+*.gltf
+*.zip
+*.mp4
+*.tgz
+
+# Dependencies and tooling
+node_modules/
+.pnpm-store/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.tmp-*
+.idea/
+.vscode/

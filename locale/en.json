@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Tiiny 3D",
+    "description": "Turn one reference image into a textured GLB with Tencent/Hunyuan3D-2.1 on your Tiiny device, with every pipeline stage under your control."
+  }
+}
